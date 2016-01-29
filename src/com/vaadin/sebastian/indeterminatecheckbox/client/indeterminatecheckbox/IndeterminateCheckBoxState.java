@@ -7,4 +7,6 @@ public class IndeterminateCheckBoxState extends CheckBoxState {
     private static final long serialVersionUID = 2096319488570974173L;
 
     public Boolean value = false;
+
+    public boolean isUserToggleable = false;
 }
