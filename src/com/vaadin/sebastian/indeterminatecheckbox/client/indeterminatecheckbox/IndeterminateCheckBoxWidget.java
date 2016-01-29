@@ -1,7 +1,10 @@
 package com.vaadin.sebastian.indeterminatecheckbox.client.indeterminatecheckbox;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
@@ -34,7 +37,7 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
         this.connector = connector;
     }
 
-    private void removePossibleValoClassName() {
+    public void removePossibleValoClassName() {
         getElement().removeClassName(VALO_INDETERMINATE_CLASSNAME);
     }
 
@@ -53,22 +56,23 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
     }
 
     public Boolean handleToggle() {
-        boolean indeterminate = input.getPropertyBoolean("indeterminate");
-        boolean checked = input.isChecked();
+        Boolean value = connector.getState().value;
 
-        if (!checked && indeterminate) {
-            input.setChecked(false);
+        if (value == null
+                || (!connector.getState().isUserToggleable && !value)) {
+            input.setChecked(true);
             input.setPropertyBoolean("indeterminate", false);
-            addOrRemoveValoStyleIfValo(false);
-            return false;
-        } else if (checked) {
+            return true;
+        } else if (!value && connector.getState().isUserToggleable) {
             input.setPropertyBoolean("indeterminate", true);
             input.setChecked(false);
             addOrRemoveValoStyleIfValo(true);
             return null;
         } else {
-            input.setChecked(true);
-            return true;
+            input.setChecked(false);
+            input.setPropertyBoolean("indeterminate", false);
+            addOrRemoveValoStyleIfValo(false);
+            return false;
         }
 
     }
@@ -78,7 +82,7 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
                                                        return (property.indexOf("ThemeIcons") > -1) || (property.indexOf("FontAwesome") > -1);   
                                                        }-*/;
 
-    protected void addOrRemoveValoStyleIfValo(boolean isIndeterminate) {
+    public void addOrRemoveValoStyleIfValo(boolean isIndeterminate) {
 
         boolean isValoTheme = isValoTheme(input.getNextSiblingElement());
 
@@ -91,31 +95,34 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
         }
     }
 
+    private boolean ignoreEvent = false;
+
     @Override
     public void onPreviewNativeEvent(NativePreviewEvent event) {
 
         Element target = event.getNativeEvent().getEventTarget().cast();
 
         boolean isWidgetClicked = (event.getTypeInt() == Event.ONCLICK)
-                && (target == getElement()
-                        || target == getElement().getFirstChild()
-                        || target == getElement().getFirstChild()
-                                .getNextSibling());
+                && (target == getElement() || target == input
+                        || target == input.getNextSibling());
 
-        if (isWidgetClicked) {
+        if (isWidgetClicked && !ignoreEvent) {
 
-            boolean isPreviousValueNull = connector.getState().value == null;
+            ignoreEvent = true;
+            event.cancel();
 
-            if ((isWidgetClicked && connector.getState().isUserToggleable)
-                    || isPreviousValueNull) {
-                event.cancel();
+            // So we don't get multiple events from both input and label when
+            // clicked once.
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
-                handleToggle();
-                connector.sendValue(handleToggle());
-            } else {
-                connector.sendValue(getValue());
-                removePossibleValoClassName();
-            }
+                @Override
+                public void execute() {
+                    ignoreEvent = false;
+                }
+            });
+
+            Boolean newValue = handleToggle();
+            connector.sendValue(newValue);
         }
     }
 
@@ -125,7 +132,13 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
             input.setPropertyBoolean("indeterminate", true);
             input.setChecked(false);
             addOrRemoveValoStyleIfValo(true);
+
+            if (fireEvents) {
+                ValueChangeEvent.fire(this, value);
+            }
+
         } else {
+            input.setPropertyBoolean("indeterminate", false);
             super.setValue(value, fireEvents);
         }
     }

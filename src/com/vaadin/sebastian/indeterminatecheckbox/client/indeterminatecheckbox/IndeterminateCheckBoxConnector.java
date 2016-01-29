@@ -34,17 +34,24 @@ public class IndeterminateCheckBoxConnector extends AbstractComponentConnector {
 
     @Override
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
-        super.onStateChanged(stateChangeEvent);
 
+        super.onStateChanged(stateChangeEvent);
         if (stateChangeEvent.hasPropertyChanged("value")
                 && (getState().value != getWidget().getValue())) {
             Boolean value = getState().value;
             getWidget().setValue(value, false);
         }
+
     }
 
     public void sendValue(Boolean value) {
         getRpcProxy(IndeterminateCheckBoxServerRpc.class).setValue(value);
+    }
+
+    @Override
+    protected void updateWidgetStyleNames() {
+        getWidget().removePossibleValoClassName();
+        super.updateWidgetStyleNames();
     }
 
 }
