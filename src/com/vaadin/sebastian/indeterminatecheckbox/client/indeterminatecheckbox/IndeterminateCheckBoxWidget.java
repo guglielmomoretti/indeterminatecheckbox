@@ -10,6 +10,7 @@ import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.vaadin.client.VTooltip;
+import com.vaadin.client.ui.Icon;
 import com.vaadin.client.ui.aria.AriaHelper;
 import com.vaadin.client.ui.aria.HandlesAriaInvalid;
 import com.vaadin.client.ui.aria.HandlesAriaRequired;
@@ -23,6 +24,10 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
     private static final String VALO_INDETERMINATE_CLASSNAME = "valo-indeterminate";
 
     private IndeterminateCheckBoxConnector connector;
+
+    public Element errorIndicatorElement;
+
+    public Icon icon;
 
     private InputElement input;
 
@@ -62,6 +67,7 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
                 || (!connector.getState().isUserToggleable && !value)) {
             input.setChecked(true);
             input.setPropertyBoolean("indeterminate", false);
+            addOrRemoveValoStyleIfValo(false);
             return true;
         } else if (!value && connector.getState().isUserToggleable) {
             input.setPropertyBoolean("indeterminate", true);
@@ -87,7 +93,8 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
         boolean isValoTheme = isValoTheme(input.getNextSiblingElement());
 
         if (isValoTheme) {
-            if (isIndeterminate) {
+            if (isIndeterminate && !getElement().getClassName()
+                    .contains(VALO_INDETERMINATE_CLASSNAME)) {
                 getElement().addClassName(VALO_INDETERMINATE_CLASSNAME);
             } else {
                 getElement().removeClassName(VALO_INDETERMINATE_CLASSNAME);

@@ -15,7 +15,6 @@ import com.vaadin.ui.AbstractField;
 public class IndeterminateCheckBox extends AbstractField<Boolean> {
 
     private static final long serialVersionUID = -4235583287773626960L;
-    private static final String STYLENAME = "v-checkbox v-indeterminate-checkbox";
 
     IndeterminateCheckBoxServerRpc rpc = new IndeterminateCheckBoxServerRpc() {
 
@@ -37,9 +36,12 @@ public class IndeterminateCheckBox extends AbstractField<Boolean> {
 
     public IndeterminateCheckBox(String caption, Boolean initialState) {
         setCaption(caption);
-        setStyleName(STYLENAME);
         setValue(initialState);
         registerRpc(rpc);
+
+        if (initialState == null) {
+            getState().value = null;
+        }
 
     }
 
@@ -80,5 +82,13 @@ public class IndeterminateCheckBox extends AbstractField<Boolean> {
      */
     public boolean isUserCanToggleIndetermine() {
         return getState().isUserToggleable;
+    }
+
+    /**
+     * The checkbox can never be empty.
+     */
+    @Override
+    public boolean isEmpty() {
+        return false;
     }
 }

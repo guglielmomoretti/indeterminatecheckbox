@@ -1,8 +1,7 @@
-package com.vaadin.sebastian.indeterminatecheckbox;
+package com.vaadin.sebastian.indeterminatecheckbox.testcomponents;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
@@ -14,7 +13,6 @@ public class MenuBar extends HorizontalLayout {
 
     public MenuBar(UI ui) {
         this.ui = ui;
-        setMargin(new MarginInfo(false, true, false, true));
         setWidth("100%");
         createComponents();
     }
