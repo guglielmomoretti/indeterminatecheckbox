@@ -139,7 +139,6 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
             input.setPropertyBoolean("indeterminate", true);
             input.setChecked(false);
             addOrRemoveValoStyleIfValo(true);
-
             if (fireEvents) {
                 ValueChangeEvent.fire(this, value);
             }
@@ -147,6 +146,8 @@ public class IndeterminateCheckBoxWidget extends CheckBox implements
         } else {
             input.setPropertyBoolean("indeterminate", false);
             super.setValue(value, fireEvents);
+            addOrRemoveValoStyleIfValo(false);
         }
+
     }
 }
